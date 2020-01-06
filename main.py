@@ -9,11 +9,16 @@ website = '''<!DOCTYPE html>
     </head>
     <body>
         this is a website generated with my own framework
-    </body>
+    </nav>
 </html>
 '''
 
-DOM, error = HTMLparse(website)
+DOM, errors = HTMLparse(website)
+
+for err in errors:
+    print(err)
+
+print()
 printHTMLTree(DOM)
 
 #renderString(website, "test.html")

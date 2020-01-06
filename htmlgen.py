@@ -1,6 +1,11 @@
 import webbrowser
 import os
 
+errorCodes = [
+    "No errors have been detected while parsing",                           #0
+    "[ERROR] found an element of type {} closed with an {} tag on line {}"  #1
+]
+
 class HTML:
     def __init__(self, type="dom"):
         #set elemental properties
@@ -12,9 +17,10 @@ def HTMLparse(string):
     DOM = HTML()
     DOMHIST = []
     head = DOM
+    errors = []
     if not string == "":
         string = string.splitlines()
-        for tag in string:
+        for lineNumber, tag in enumerate(string):
             content = tag.strip()
             if content[0] == "<" and content[1] != "!":#if content is a tag and isnt doctype
                 tagname = content[1:-1]
@@ -23,10 +29,12 @@ def HTMLparse(string):
                     head.children.append(HTML(tagname))
                     DOMHIST.append(head)
                     head = head.children[-1]
-                else:
+                else:#a closing tag has been found
+                    if tagname[1:] != head.type:
+                        errors.append(errorCodes[1].format(head.type, tagname[1:], lineNumber))
+                        return DOM, errors
                     head = DOMHIST.pop()
-
-    return DOM
+    return DOM, [errorCodes[0]]
 
 def printHTMLTree(DOM, indent=0):
     if DOM.haschildren:
