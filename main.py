@@ -13,6 +13,21 @@ website = '''<!DOCTYPE html>
 </html>
 '''
 
-html = HTML(website)
+DOM, error = HTMLparse(website)
+printHTMLTree(DOM)
 
 #renderString(website, "test.html")
+
+
+class Women:
+    def __init__(self, age):
+        self.inside = []
+
+    def cook(self):
+        pass
+    
+    def insertObject(self, obj):
+        self.inside.append(obj)
+
+    def pleasureOther(self, other):
+        self.insertObject(self, other.dick())
