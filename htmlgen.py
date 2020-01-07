@@ -6,6 +6,16 @@ errorCodes = [
     "[ERROR] found an element of type {} closed with an {} tag on line {}"  #1
 ]
 
+htmltags = [
+    "html",
+    "head",
+    "body",
+    "title",
+    "p",
+    "b",
+    "i"
+]
+
 class Component:
     def __init__(self):
         pass
@@ -35,7 +45,7 @@ def HTMLparse(string):
         string = string.splitlines()
         for lineNumber, tag in enumerate(string):
             content = tag.strip()
-            if content[1] != "!":#if content is a tag and isnt doctype
+            if content[1] != "!":#isnt doctype
                 if content[0] == "<":
                     tagname = content[1:-1]
                 else:
@@ -78,5 +88,20 @@ def renderString(string, output):
 
     webbrowser.open(f'file://{os.path.realpath(output)}')
 
+def stringifyDOM(DOM, indent=0):
+    htmlstring = ""
+    for element in DOM.children:
+        indentation = ""
+        for i in range(indent):
+            indentation+="\t"
+        if not element.istext:
+            htmlstring+=f"{indentation}<{element.type}>\n"
+            htmlstring+=stringifyDOM(element, indent+1)
+            htmlstring+=f"{indentation}</{element.type}>\n"
+        else:
+            htmlstring+=f"{indentation}{element.textContent}\n"
+    return htmlstring
+
 def renderDOM(DOM, outputfile):
-    pass
+    htmlstring = stringifyDOM(DOM)
+    renderString(htmlstring, outputfile)

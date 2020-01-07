@@ -8,16 +8,20 @@ website = '''<!DOCTYPE html>
         </title>
     </head>
     <body>
-        this is a website generated with my own framework
+        single tag test
+        <br/>
     </body>
 </html>
 '''
 
 DOM, errors = HTMLparse(website)
 
+#error handling
 for err in errors:
     print(err)
-
 print()
-printHTMLTree(DOM)
+
+#renderthe page
+renderDOM(DOM, "test.html")
+
 #renderString(website, "test.html")
