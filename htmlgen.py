@@ -49,12 +49,13 @@ def HTMLparse(string):
             if content[1] != "!":#isnt doctype
                 if content[0] == "<":
                     #sepperate args from tag name
-                    args = content[1:-1].split(" ")
+                    args = content[1:-1].split(" ", 1)
                     tagname = args.pop(0)
-
                     #parse args
                     for i, arg in enumerate(args):
                         arg = arg.split("=")
+                        arg[0] = arg[0].strip()
+                        arg[1] = arg[1].strip()
                         arg[1] = arg[1][1:-1]
                         args[i] = [arg[0], arg[1]]
 
@@ -88,27 +89,8 @@ def HTMLparse(string):
                     head = DOMHIST.pop()
     return DOM, [errorCodes[0]]
 
-
-
-
-def printHTMLTree(DOM, indent=0):
-    if DOM.haschildren:
-        for element in DOM.children:
-            argstring = ""
-            print(element.arguments)
-
-            indentation = ""
-            for i in range(indent):
-                indentation+="  "
-            
-            if element.isSelfClosing:
-                print(f"{indentation}<{element.type} />\n")
-            elif not element.type == "text":#non self closing tag
-                print(f"{indentation}<{element.type}>")
-            else:#text
-                print(f"{indentation}{element.textContent}")
-            if element.haschildren:
-                printHTMLTree(element, indent+1)
+def printHTMLTree(DOM):
+    print(stringifyDOM(DOM))
 
 def renderString(string, output):
     with open(output, "w+") as File:
@@ -122,16 +104,25 @@ def stringifyDOM(DOM, indent=0):
         indentation = ""
         for i in range(indent):
             indentation+="\t"
-        if element.isSelfClosing:
-            htmlstring+=f"{indentation}<{element.type} />\n"
+
+        argstring = ""
+        for i in range(len(element.arguments)):
+            arg = element.arguments[i]
+            argstring += f" {arg[0]} = \"{arg[1]}\""
+
+        if element.isSelfClosing:#self closing tag
+            htmlstring+=f"{indentation}<{element.type}{argstring} />\n"
 
         elif not element.istext:#non self closing tag
-            htmlstring+=f"{indentation}<{element.type}>\n"
+            htmlstring+=f"{indentation}<{element.type}{argstring}>\n"
             htmlstring+=stringifyDOM(element, indent+1)
             htmlstring+=f"{indentation}</{element.type}>\n"
         else:#text
             htmlstring+=f"{indentation}{element.textContent}\n"
-    return htmlstring
+    if indent==0:
+        return htmlstring.strip()
+    else:
+        return htmlstring
 
 def renderDOM(DOM, outputfile):
     htmlstring = stringifyDOM(DOM)

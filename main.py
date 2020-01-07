@@ -12,5 +12,5 @@ for err in errors:
 print()
 
 #render the page
-printHTMLTree(DOM)
+#printHTMLTree(DOM)
 renderDOM(DOM, "test.html")
