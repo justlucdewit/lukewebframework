@@ -1,18 +1,9 @@
 from htmlgen import *
 
-website = '''<!DOCTYPE html>
-<html>
-    <head>
-        <title>
-            htmlgen test
-        </title>
-    </head>
-    <body>
-        single tag test
-        <br/>
-    </body>
-</html>'''
+#define source code
+website = loadSource("./source")
 
+#get dom object and errors
 DOM, errors = HTMLparse(website)
 
 #error handling

@@ -118,3 +118,7 @@ def stringifyDOM(DOM, indent=0):
 def renderDOM(DOM, outputfile):
     htmlstring = stringifyDOM(DOM)
     renderString(htmlstring, outputfile)
+
+def loadSource(url):
+    with open(f"{url}.html", "r+") as File:
+        return File.read()
