@@ -11,8 +11,7 @@ website = '''<!DOCTYPE html>
         single tag test
         <br/>
     </body>
-</html>
-'''
+</html>'''
 
 DOM, errors = HTMLparse(website)
 
@@ -21,7 +20,5 @@ for err in errors:
     print(err)
 print()
 
-#renderthe page
+#render the page
 renderDOM(DOM, "test.html")
-
-#renderString(website, "test.html")

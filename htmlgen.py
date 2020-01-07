@@ -29,6 +29,7 @@ class HTML:
         self.type = type
         self.istext = False
         self.textContent = ""
+        self.isSelfClosing = False
         
         self.children = []
         self.haschildren = False
@@ -48,7 +49,7 @@ def HTMLparse(string):
             if content[1] != "!":#isnt doctype
                 if content[0] == "<":
                     tagname = content[1:-1]
-                else:
+                else:#handeling strings
                     tagname = content
                     head.haschildren = True
                     txt = HTML("text")
@@ -56,12 +57,17 @@ def HTMLparse(string):
                     txt.textContent = tagname
                     head.children.append(txt)
                     continue
-                if tagname[0] != "/":#if its not a closing tag
+                if tagname[-1] == "/": #self closing tags
+                    head.haschildren = True
+                    tag = HTML(tagname[0:-1])
+                    tag.isSelfClosing = True
+                    head.children.append(tag)
+                elif tagname[0] != "/":#non self closing tags
                     head.haschildren = True
                     head.children.append(HTML(tagname))
                     DOMHIST.append(head)
                     head = head.children[-1]
-                else:#a closing tag has been found
+                else:#closing tag
                     if tagname[1:] != head.type:
                         print(head.istext)
                         errors.append(errorCodes[1].format(head.type, tagname[1:], lineNumber))
@@ -88,17 +94,24 @@ def renderString(string, output):
 
     webbrowser.open(f'file://{os.path.realpath(output)}')
 
+
+
+
+
 def stringifyDOM(DOM, indent=0):
     htmlstring = ""
     for element in DOM.children:
         indentation = ""
         for i in range(indent):
             indentation+="\t"
-        if not element.istext:
+        if element.isSelfClosing:
+            htmlstring+=f"{indentation}<{element.type} />\n"
+
+        elif not element.istext:#non self closing tag
             htmlstring+=f"{indentation}<{element.type}>\n"
             htmlstring+=stringifyDOM(element, indent+1)
             htmlstring+=f"{indentation}</{element.type}>\n"
-        else:
+        else:#text
             htmlstring+=f"{indentation}{element.textContent}\n"
     return htmlstring
 
