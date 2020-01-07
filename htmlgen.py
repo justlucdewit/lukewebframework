@@ -20,7 +20,7 @@ class Component:
     def __init__(self):
         pass
 
-    def render():
+    def render(self):
         pass
 
 class HTML:
@@ -34,7 +34,7 @@ class HTML:
         self.children = []
         self.haschildren = False
         
-        self.arguments = []
+        self.arguments = {}
         
 
 def HTMLparse(string):
@@ -48,7 +48,16 @@ def HTMLparse(string):
             content = tag.strip()
             if content[1] != "!":#isnt doctype
                 if content[0] == "<":
-                    tagname = content[1:-1]
+                    #sepperate args from tag name
+                    args = content[1:-1].split(" ")
+                    tagname = args.pop(0)
+
+                    #parse args
+                    for i, arg in enumerate(args):
+                        arg = arg.split("=")
+                        arg[1] = arg[1][1:-1]
+                        args[i] = [arg[0], arg[1]]
+
                 else:#handeling strings
                     tagname = content
                     head.haschildren = True
@@ -60,30 +69,43 @@ def HTMLparse(string):
                 if tagname[-1] == "/": #self closing tags
                     head.haschildren = True
                     tag = HTML(tagname[0:-1])
+                    for arg in args:
+                        tag.arguments[arg[0]] = arg[1]
                     tag.isSelfClosing = True
                     head.children.append(tag)
                 elif tagname[0] != "/":#non self closing tags
                     head.haschildren = True
-                    head.children.append(HTML(tagname))
+                    tag = HTML(tagname)
+                    for i, arg in enumerate(args):
+                        tag.arguments[i] = arg
+                    head.children.append(tag)
                     DOMHIST.append(head)
                     head = head.children[-1]
                 else:#closing tag
                     if tagname[1:] != head.type:
-                        print(head.istext)
                         errors.append(errorCodes[1].format(head.type, tagname[1:], lineNumber))
                         return DOM, errors
                     head = DOMHIST.pop()
     return DOM, [errorCodes[0]]
 
+
+
+
 def printHTMLTree(DOM, indent=0):
     if DOM.haschildren:
         for element in DOM.children:
+            argstring = ""
+            print(element.arguments)
+
             indentation = ""
             for i in range(indent):
-                indentation+="| "
-            if not element.type == "text":
+                indentation+="  "
+            
+            if element.isSelfClosing:
+                print(f"{indentation}<{element.type} />\n")
+            elif not element.type == "text":#non self closing tag
                 print(f"{indentation}<{element.type}>")
-            else:
+            else:#text
                 print(f"{indentation}{element.textContent}")
             if element.haschildren:
                 printHTMLTree(element, indent+1)
@@ -93,10 +115,6 @@ def renderString(string, output):
         File.write(string)
 
     webbrowser.open(f'file://{os.path.realpath(output)}')
-
-
-
-
 
 def stringifyDOM(DOM, indent=0):
     htmlstring = ""
