@@ -4,16 +4,11 @@ import os
 errorCodes = [
     "No errors have been detected while parsing",                           #0
     "[ERROR] found an element of type {} closed with an {} tag on line {}"  #1
+    "[ERROR] found an unknown tag type {} on line {}"                       #2
 ]
 
 htmltags = [
-    "html",
-    "head",
-    "body",
-    "title",
-    "p",
-    "b",
-    "i"
+    "html", "head", "body", "title", "p", "b", "i", "h2", "h3", "h4", "h5", "h6",
 ]
 
 class Component:
@@ -131,3 +126,7 @@ def renderDOM(DOM, outputfile):
 def loadSource(url):
     with open(f"{url}.html", "r+") as File:
         return File.read()
+
+def allowTag(*tagnames):
+    for tag in tagnames:
+        htmltags.append(tag)
